@@ -17,16 +17,51 @@ class AuthService {
     final res = await _repo.signIn(email: email.trim(), password: password);
     final user = res.user;
     if (user == null) throw Exception('Invalid credentials');
-    return _repo.fetchProfile(user.id);
+
+    try {
+      await _repo.ensureProfileForAuthUser(user);
+      return await _repo.fetchProfile(user.id);
+    } catch (_) {
+      final metadata = user.userMetadata ?? {};
+      final email = user.email ?? '';
+      final fallbackName = email.contains('@') ? email.split('@').first : 'User';
+      final createdAt = DateTime.tryParse(user.createdAt ?? '') ?? DateTime.now();
+      final updatedAt = DateTime.tryParse(user.updatedAt ?? '') ?? createdAt;
+
+      return AppUser(
+        id: user.id,
+        fullName: (metadata['full_name'] as String?) ?? fallbackName,
+        email: email,
+        role: AppRoleX.fromString((metadata['role'] as String?) ?? 'staff'),
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+      );
+    }
   }
 
   Future<AppUser?> restoreSession() async {
     final authUser = _repo.currentAuthUser;
     if (authUser == null) return null;
     try {
+      await _repo.ensureProfileForAuthUser(authUser);
       return await _repo.fetchProfile(authUser.id);
     } catch (_) {
-      return null;
+      final metadata = authUser.userMetadata ?? {};
+      final email = authUser.email ?? '';
+      final fallbackName = email.contains('@') ? email.split('@').first : 'User';
+      final createdAt =
+          DateTime.tryParse(authUser.createdAt ?? '') ?? DateTime.now();
+      final updatedAt =
+          DateTime.tryParse(authUser.updatedAt ?? '') ?? createdAt;
+
+      return AppUser(
+        id: authUser.id,
+        fullName: (metadata['full_name'] as String?) ?? fallbackName,
+        email: email,
+        role: AppRoleX.fromString((metadata['role'] as String?) ?? 'staff'),
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+      );
     }
   }
 

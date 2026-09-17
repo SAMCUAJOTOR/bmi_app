@@ -32,33 +32,38 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
+        widget.child,
         if (!_online)
-          Container(
-            width: double.infinity,
-            color: Colors.red.shade600,
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            child: const SafeArea(
-              bottom: false,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.wifi_off, color: Colors.white, size: 16),
-                  SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      'You are offline. Previously loaded data may be shown; '
-                      'changes require an internet connection.',
-                      style: TextStyle(color: Colors.white, fontSize: 12),
-                      textAlign: TextAlign.center,
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              width: double.infinity,
+              color: Colors.red.shade600,
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              child: const SafeArea(
+                bottom: false,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.wifi_off, color: Colors.white, size: 16),
+                    SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        'You are offline. Previously loaded data may be shown; '
+                        'changes require an internet connection.',
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        Expanded(child: widget.child),
       ],
     );
   }

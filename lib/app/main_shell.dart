@@ -20,29 +20,35 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     final isAdmin = context.watch<AuthProvider>().isAdmin;
+    final colorScheme = Theme.of(context).colorScheme;
 
     final destinations = <NavigationDestination>[
       const NavigationDestination(
-          icon: Icon(Icons.dashboard_outlined),
-          selectedIcon: Icon(Icons.dashboard),
-          label: 'Dashboard'),
+        icon: Icon(Icons.dashboard_outlined),
+        selectedIcon: Icon(Icons.dashboard_rounded),
+        label: 'Dashboard',
+      ),
       const NavigationDestination(
-          icon: Icon(Icons.people_outline),
-          selectedIcon: Icon(Icons.people),
-          label: 'Users'),
+        icon: Icon(Icons.people_outline_rounded),
+        selectedIcon: Icon(Icons.people_rounded),
+        label: 'Users',
+      ),
       const NavigationDestination(
-          icon: Icon(Icons.monitor_weight_outlined),
-          selectedIcon: Icon(Icons.monitor_weight),
-          label: 'BMI'),
+        icon: Icon(Icons.monitor_weight_outlined),
+        selectedIcon: Icon(Icons.monitor_weight_rounded),
+        label: 'BMI',
+      ),
       if (isAdmin)
         const NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: 'Reports'),
+          icon: Icon(Icons.bar_chart_outlined),
+          selectedIcon: Icon(Icons.bar_chart_rounded),
+          label: 'Reports',
+        ),
       const NavigationDestination(
-          icon: Icon(Icons.person_outline),
-          selectedIcon: Icon(Icons.person),
-          label: 'Profile'),
+        icon: Icon(Icons.person_outline_rounded),
+        selectedIcon: Icon(Icons.person_rounded),
+        label: 'Profile',
+      ),
     ];
 
     final screens = <Widget>[
@@ -55,43 +61,148 @@ class _MainShellState extends State<MainShell> {
 
     if (_index >= screens.length) _index = 0;
 
-    // Wide screens (tablet/desktop/foldables opened flat) get a side
-    // NavigationRail; phones get the bottom NavigationBar. Both drive the
-    // same IndexedStack so navigation state is identical either way.
     return LayoutBuilder(
       builder: (context, constraints) {
         final isWide = constraints.maxWidth >= 700;
 
         if (isWide) {
           return Scaffold(
-            body: Row(
-              children: [
-                NavigationRail(
-                  selectedIndex: _index,
-                  onDestinationSelected: (i) => setState(() => _index = i),
-                  labelType: NavigationRailLabelType.all,
-                  destinations: [
-                    for (final d in destinations)
-                      NavigationRailDestination(
-                        icon: d.icon,
-                        selectedIcon: d.selectedIcon,
-                        label: Text(d.label),
-                      ),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            body: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    colorScheme.surface,
+                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.68),
                   ],
                 ),
-                const VerticalDivider(width: 1),
-                Expanded(child: IndexedStack(index: _index, children: screens)),
-              ],
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 250,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface.withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(28),
+                          border: Border.all(
+                            color: colorScheme.outlineVariant,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                                color: colorScheme.shadow.withValues(alpha: 0.08),
+                              blurRadius: 18,
+                              offset: const Offset(0, 12),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 46,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                color: colorScheme.primaryContainer,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Icon(
+                                Icons.monitor_weight_rounded,
+                                color: colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                            Text(
+                              'Fitlevel',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.w800),
+                            ),
+                            const SizedBox(height: 12),
+                            Expanded(
+                              child: NavigationRail(
+                                selectedIndex: _index,
+                                onDestinationSelected: (i) =>
+                                    setState(() => _index = i),
+                                labelType: NavigationRailLabelType.all,
+                                backgroundColor: Colors.transparent,
+                                unselectedIconTheme: IconThemeData(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                                selectedIconTheme: IconThemeData(
+                                  color: colorScheme.onPrimary,
+                                ),
+                                indicatorColor: colorScheme.primary,
+                                destinations: [
+                                  for (final d in destinations)
+                                    NavigationRailDestination(
+                                      icon: d.icon,
+                                      selectedIcon: d.selectedIcon,
+                                      label: Text(d.label),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: colorScheme.surface.withValues(alpha: 0.8),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: colorScheme.outlineVariant,
+                            ),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: IndexedStack(index: _index, children: screens),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           );
         }
 
         return Scaffold(
-          body: IndexedStack(index: _index, children: screens),
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: _index,
-            onDestinationSelected: (i) => setState(() => _index = i),
-            destinations: destinations,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  colorScheme.surface,
+                  colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
+                ],
+              ),
+            ),
+            child: IndexedStack(index: _index, children: screens),
+          ),
+          bottomNavigationBar: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+              child: NavigationBar(
+                selectedIndex: _index,
+                onDestinationSelected: (i) => setState(() => _index = i),
+                destinations: destinations,
+                backgroundColor: colorScheme.surface.withValues(alpha: 0.9),
+                elevation: 0,
+                shadowColor: Colors.transparent,
+                indicatorColor: colorScheme.primary.withValues(alpha: 0.16),
+                height: 72,
+              ),
+            ),
           ),
         );
       },

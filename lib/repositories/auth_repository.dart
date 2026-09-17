@@ -56,6 +56,29 @@ class AuthRepository {
     return AppUser.fromMap(data);
   }
 
+  Future<void> ensureProfileForAuthUser(User user) async {
+    final existing = await _client
+        .from(AppConstants.tableProfiles)
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+    if (existing != null) return;
+
+    final metadata = user.userMetadata ?? {};
+    final role = metadata['role'] as String? ?? 'staff';
+    final fullName = metadata['full_name'] as String? ??
+        user.email?.split('@').first ??
+        'User';
+
+    await _client.from(AppConstants.tableProfiles).insert({
+      'id': user.id,
+      'full_name': fullName,
+      'email': user.email,
+      'role': role,
+    });
+  }
+
   Future<void> updateProfileName(String userId, String fullName) async {
     await _client
         .from(AppConstants.tableProfiles)

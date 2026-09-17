@@ -27,6 +27,10 @@ void main() {
   late MockUserService mockService;
   late UserProvider provider;
 
+  setUpAll(() {
+    registerFallbackValue(SortField.name);
+  });
+
   setUp(() {
     mockService = MockUserService();
     provider = UserProvider(userService: mockService);

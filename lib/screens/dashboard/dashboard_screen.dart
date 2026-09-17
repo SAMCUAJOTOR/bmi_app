@@ -25,50 +25,136 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final dash = context.watch<DashboardProvider>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Dashboard')),
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        title: const Text('Dashboard'),
+        automaticallyImplyLeading: false,
+      ),
       body: RefreshIndicator(
         onRefresh: () => context.read<DashboardProvider>().load(),
         child: Builder(builder: (context) {
           if (dash.isLoading && dash.stats == null) return const LoadingState();
           if (dash.errorMessage != null) {
             return ErrorState(
-                message: dash.errorMessage!,
-                onRetry: () => context.read<DashboardProvider>().load());
+              message: dash.errorMessage!,
+              onRetry: () => context.read<DashboardProvider>().load(),
+            );
           }
           final stats = dash.stats!;
+
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      colorScheme.primary,
+                      colorScheme.primary.withValues(alpha: 0.82),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Wellness overview',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(color: colorScheme.onPrimary),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${stats.totalUsers} active users',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
+                                  color: colorScheme.onPrimary,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Average BMI ${stats.averageBmi.toStringAsFixed(1)}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(color: colorScheme.onPrimary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 66,
+                      height: 66,
+                      decoration: BoxDecoration(
+                        color: colorScheme.onPrimary.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Icon(
+                        Icons.trending_up_rounded,
+                        size: 30,
+                        color: colorScheme.onPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Overview',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 12),
               GridView.count(
                 crossAxisCount: 2,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childAspectRatio: 1.6,
+                childAspectRatio: 1.7,
                 children: [
                   _StatCard(label: 'Total Users', value: '${stats.totalUsers}'),
                   _StatCard(
-                      label: 'Average BMI',
-                      value: stats.averageBmi.toStringAsFixed(1)),
+                    label: 'Average BMI',
+                    value: stats.averageBmi.toStringAsFixed(1),
+                    color: colorScheme.primary,
+                  ),
                   _StatCard(
-                      label: 'Underweight',
-                      value: '${stats.underweight}',
-                      color: categoryColor('Underweight')),
+                    label: 'Underweight',
+                    value: '${stats.underweight}',
+                    color: categoryColor('Underweight'),
+                  ),
                   _StatCard(
-                      label: 'Normal',
-                      value: '${stats.normal}',
-                      color: categoryColor('Normal')),
+                    label: 'Normal',
+                    value: '${stats.normal}',
+                    color: categoryColor('Normal'),
+                  ),
                   _StatCard(
-                      label: 'Overweight',
-                      value: '${stats.overweight}',
-                      color: categoryColor('Overweight')),
+                    label: 'Overweight',
+                    value: '${stats.overweight}',
+                    color: categoryColor('Overweight'),
+                  ),
                   _StatCard(
-                      label: 'Obese',
-                      value: '${stats.obese}',
-                      color: categoryColor('Obese')),
+                    label: 'Obese',
+                    value: '${stats.obese}',
+                    color: categoryColor('Obese'),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -78,9 +164,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('BMI Category Distribution',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
+                      Text(
+                        'BMI category distribution',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
                       BmiDistributionChart(
                         underweight: stats.underweight,
                         normal: stats.normal,
@@ -98,8 +188,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Recent BMI Records',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        'Recent BMI records',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       if (stats.recent.isEmpty)
                         const EmptyState(
@@ -108,14 +202,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           icon: Icons.monitor_weight_outlined,
                         )
                       else
-                        ...stats.recent.map((r) => ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(r.name),
-                              subtitle: Text(
-                                  DateFormat('MMM d, yyyy').format(r.createdAt)),
-                              trailing: BmiBadge(
-                                  bmi: r.bmi, category: r.bmiCategory, compact: true),
-                            )),
+                        ...stats.recent.map(
+                          (r) => Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        r.name,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge
+                                            ?.copyWith(fontWeight: FontWeight.w700),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        DateFormat('MMM d, yyyy').format(r.createdAt),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                BmiBadge(
+                                  bmi: r.bmi,
+                                  category: r.bmiCategory,
+                                  compact: true,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -137,23 +263,34 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(value,
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: color)),
-            const SizedBox(height: 4),
-            Text(label,
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-          ],
-        ),
+    final palette = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: palette.surface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: palette.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            value,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: color ?? palette.onSurface,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: palette.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }

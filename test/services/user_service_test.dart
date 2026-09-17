@@ -31,6 +31,10 @@ void main() {
   late MockUserRepository mockRepo;
   late UserService service;
 
+  setUpAll(() {
+    registerFallbackValue(SortField.name);
+  });
+
   setUp(() {
     mockRepo = MockUserRepository();
     service = UserService(repository: mockRepo);

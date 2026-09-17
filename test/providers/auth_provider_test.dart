@@ -29,6 +29,10 @@ void main() {
   late MockAuthService mockAuthService;
   late AuthProvider provider;
 
+  setUpAll(() {
+    registerFallbackValue(AppRole.staff);
+  });
+
   setUp(() {
     mockAuthService = MockAuthService();
     provider = AuthProvider(authService: mockAuthService);

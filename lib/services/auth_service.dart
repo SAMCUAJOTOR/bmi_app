@@ -25,7 +25,7 @@ class AuthService {
       final metadata = user.userMetadata ?? {};
       final email = user.email ?? '';
       final fallbackName = email.contains('@') ? email.split('@').first : 'User';
-      final createdAt = DateTime.tryParse(user.createdAt ?? '') ?? DateTime.now();
+      final createdAt = DateTime.tryParse(user.createdAt) ?? DateTime.now();
       final updatedAt = DateTime.tryParse(user.updatedAt ?? '') ?? createdAt;
 
       return AppUser(
@@ -47,10 +47,10 @@ class AuthService {
       return await _repo.fetchProfile(authUser.id);
     } catch (_) {
       final metadata = authUser.userMetadata ?? {};
-      final email = authUser.email ?? '';
+        final email = authUser.email ?? '';
       final fallbackName = email.contains('@') ? email.split('@').first : 'User';
       final createdAt =
-          DateTime.tryParse(authUser.createdAt ?? '') ?? DateTime.now();
+          DateTime.tryParse(authUser.createdAt) ?? DateTime.now();
       final updatedAt =
           DateTime.tryParse(authUser.updatedAt ?? '') ?? createdAt;
 
